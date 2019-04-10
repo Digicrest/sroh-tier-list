@@ -1,6 +1,7 @@
 # sroh-tier-list
 
 A tier list builder for the mobile game Skylanders: Ring of Heroes.
+
 https://digicrest.github.io/sroh-tier-list/
 
 
