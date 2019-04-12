@@ -24,7 +24,7 @@
       -moz-user-select:    none;     
       -ms-user-select:     none;     
     }
-    #comment-icon:hover {
+    #comment-icon:hover, #chompy:hover {
       color: limegreen;
     }
   </style>
@@ -199,9 +199,9 @@
       <!-- Export Field -->
       <div style="height: 300px;" v-show="exporting">
         <div class="ui form">
-          <div class="field">
+          <div class="field" style="text-align: center">
             <label>Copy text from here</label>
-            <textarea readonly rows="14"> {{ rankToText }}</textarea>
+            <textarea readonly rows="11"> {{ rankToText }}</textarea>
           </div>
         </div>
       </div>
@@ -209,9 +209,10 @@
       <!-- Import Field -->
       <div style="height: 300px;" v-show="importing">
         <div class="ui form">
-          <div class="field">
+          <div class="field" style="text-align: center">
             <label>Paste text here</label>
-            <textarea rows="14" @input="textToRank($event.target.value)"></textarea>
+            <textarea id="importText" rows="11" @input="textToRank($event.target.value)"></textarea>
+            <button v-on:click="useChompyTierList()" title="Last Updated: 12th April 2019" class="ui inverted green button" style="margin-top: 10px;">Chompy</button>
           </div>
         </div>
       </div>
@@ -306,7 +307,8 @@
   </div>
 </body>
 
-<script src="./unit_data.js"></script>
+<script src="./data/unit_data.js"></script>
+<script src="./data/chompy-tier-list.js"></script>
 
 <script>
   units.forEach(function (unit) {
@@ -460,6 +462,11 @@
         catch (err) { 
           console.log("textToRank went wrong.")
         }
+      },
+      useChompyTierList(){
+        let text = JSON.stringify(chompy_tier_list);
+        $("#importText")[0].textContent = text;
+        this.textToRank(text)
       },
       addTier: function (tierToAdd, parentTier) {
         if (this.rankings.indexOf(tierToAdd) !== -1) return;
