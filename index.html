@@ -14,9 +14,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.css" />
 
-  <!-- vuetify -->
-  <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
-  
   <style type="text/css">
     .tier_selector * {
       padding: 5px;
@@ -29,7 +26,6 @@
 
 <body>
   <div id="app" class="ui stackable grid" style="padding: 1em;">
-
     <!-- Start of sidebar -->
     <div id="unit-scroller" class="four wide computer fourteen wide tablet column centered" v-show="!expanded">
       <div id="unit-panel" class="ui center aligned header">
@@ -271,23 +267,22 @@
           <tr v-for="rank in rankings.slice(1, rankings.length).reverse()">
             <td>{{ rank }}</td>
             <td v-for="element in elements" :id="rank + '-' + element" style="padding: 0">
-              <a href="#!" v-on:click="selectUnit(unit.name)" v-for="unit in getRankedUnits(element, rank)" style="position: relative">
+              <a v-for="unit in getRankedUnits(element, rank)" v-on:click="selectUnit(unit.name)" href="#!" style="position: relative">
                   <img :name="unit.name" :title="unit.comment" style="
                     width: 42px; 
                     height: 42px; 
                     margin: 2px;
                     border-radius: 5px;
                     border: 1px solid black;" 
-                    :src="'./images/units/' + unit.name + '.png'"
-                    v-on:mouseover="showPopup(unit)" 
+                    :src="'./images/units/' + unit.name + '.png'"  
                   >
 
                   <i v-if="unit.comment" class="material-icons" style="
                     position: absolute;
-                    bottom: -100%;
-                    left: 22%;
-                    transform: scale(0.5);
-                    color: lime;">
+                    top: -9px;
+                    left: 22px;
+                    transform: scale(0.7);
+                    color: mediumspringgreen;">
                       info
                   </i>
               </a>
@@ -304,10 +299,11 @@
 
 <script>
   units.forEach(function (unit) {
-    unit.rating = 0
+    unit.rating = 0;
+    unit.comment = "";
   })
   units = units.filter(unit => !unit.name.includes('generic'))
-  
+
   new Vue({
     el: '#app',
     data: {
@@ -363,13 +359,6 @@
       }
     },
     methods: {
-      showPopup: function(unit) {
-        $("#unit-panel > div:nth-child(3) > div.ui.one.header").popup({
-          title   : 'Popup Title',
-          content : 'Hello I am a popup'
-        });
-        console.log(unit)
-      },
       resetIndex: function () {
         this.incrementIndex()
         this.decrementIndex()
@@ -407,15 +396,20 @@
       addComment: function (name, comment) {
         this.all_units.find(unit => unit.name === name).comment = comment;
         this.editComment = !this.editComment;
+
+        $(`img[name='${name}']`).popup({
+            title   : name,
+            content : comment
+        });
       },
       getRankedUnits: function (element, rank) {
-        elements = [element]
+        elements = [element];
         return this.all_units.filter(unit => elements.includes(unit.element.toLowerCase()) && unit.rating == this.rankings.indexOf(rank))
       },
       randomize: function () {
         length = this.rankings.length - 1
-        this.all_units.forEach(function (unit) {
-          unit.rating = Math.floor(Math.random() * length) + 1
+        this.all_units.forEach(function(unit) {
+          unit.rating = Math.floor(Math.random() * length) + 1;
         })
       },
       reset: function () {
@@ -425,7 +419,7 @@
         })
       },
       selectUnit: function (name) {
-        this.unit_index = this.all_units.map(unit => unit.name).indexOf(name)
+        this.unit_index = this.all_units.map(unit => unit.name).indexOf(name);
       },
       textToRank: function (text) {
         try {
