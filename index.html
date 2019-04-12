@@ -18,6 +18,12 @@
     .tier_selector * {
       padding: 5px;
     }
+    .no-select {
+       user-select:        none;       
+      -webkit-user-select: none;
+      -moz-user-select:    none;     
+      -ms-user-select:     none;     
+    }
     #comment-icon:hover {
       color: limegreen;
     }
@@ -37,7 +43,7 @@
               box-shadow: 5px 4px 5px silver;
               border-radius: 5px;">
           </img>
-          <i id="comment-icon" class="ui material-icons" v-on:click="editComment=!editComment" style="position: absolute;margin-left: 10px;transform: scale(1.2);">
+          <i id="comment-icon" class="ui material-icons no-select" v-on:click="editComment=!editComment" style="position: absolute;margin-left: 10px;transform: scale(1.2);">
             message
           </i>
         </div>
