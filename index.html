@@ -113,6 +113,11 @@
                 <i class="material-icons">save</i>
               </button>
             </div>
+            <div class="ui hidden divider"></div>
+            <div class="ui toggle checkbox">
+              <input type="checkbox" id="closeOnCommentSaved" checked>
+              <label>Close on Save</label>
+            </div>
           </div>
           <!-- End of add comment -->
         </div>
@@ -394,13 +399,12 @@
         this.all_units.find(unit => unit.name === name).rating = rating;
       },
       addComment: function (name, comment) {
-        this.editComment = !this.editComment;
         this.all_units.find(unit => unit.name === name).comment = comment;
-        
-        $(`img[name='${name}']`).popup({
-            title   : name,
-            content : comment
-        });
+
+        // close on comment saved toggle
+        if ($('input[type="checkbox"')[0].checked) {
+          this.editComment = !this.editComment;
+        }
       },
       getRankedUnits: function (element, rank) {
         elements = [element];
@@ -410,6 +414,10 @@
         length = this.rankings.length - 1
         this.all_units.forEach(function(unit) {
           unit.rating = Math.floor(Math.random() * length) + 1;
+
+          if (Math.random() > 0.9) {
+            unit.comment = "Random Comment"
+          }
         })
       },
       reset: function () {
