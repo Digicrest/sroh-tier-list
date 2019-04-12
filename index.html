@@ -2,18 +2,27 @@
 <html>
 <head>
   <title>SROH Tier List Creator</title>
+  
   <meta name="description" content="Create your own Skylanders:ROH Tier List." />
   <script src="https://unpkg.com/vue"></script>
-
   <link rel="icon" type="image/png" href="images/tab-icon.svg" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.css" />
-  
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.js"></script>
+
+  <!-- semantic-ui -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.css" />
+
+  <!-- vuetify -->
+  <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
   
   <style type="text/css">
     .tier_selector * {
       padding: 5px;
+    }
+    #comment-icon:hover {
+      color: limegreen;
     }
   </style>
 </head>
@@ -32,10 +41,16 @@
               box-shadow: 5px 4px 5px silver;
               border-radius: 5px;">
           </img>
+          <i id="comment-icon" class="ui material-icons" v-on:click="editComment=!editComment" style="position: absolute;margin-left: 10px;transform: scale(1.2);">
+            message
+          </i>
         </div>
         <div>
           
-          <div class="ui one header" style="color: rgb(40, 40, 40)">{{ unit.name }}</div>
+          <div class="ui one header" style="color: rgb(40, 40, 40)">
+            {{ unit.name }}
+          </div>
+          
           <div class="ui five mini statistics">
             <div class="green statistic">
               <div class="value">{{ unit.stats.hp }}</div>
@@ -61,7 +76,7 @@
 
           <div class="ui divider"></div>
 
-          <div class="tier_selector">
+          <div class="tier_selector" v-if="!editComment">
             <p>Current rank: {{ ranking }}</p>
             <div class="ui selection list">
               <button class="ui button" v-for="rank in rankings.slice(1, rankings.length)" v-on:click="addRank(unit.name, rankings.indexOf(rank))" style="margin: 2px">{{ rank }}</button>
@@ -93,6 +108,17 @@
               <!-- End of Delete Tier -->
             </div>
           </div>
+
+          <!-- Start of add comment -->
+          <div v-if="editComment">
+            <div class="ui action input" style="width: 100%">
+              <input type="text" :placeholder=placeholder v-model="comment">
+              <button class="ui button circular icon green" v-on:click="addComment(unit.name, comment)">
+                  <i class="material-icons">save</i>
+                </button>
+              </div>
+          </div>
+          <!-- End of add comment -->
         </div>
       </div>
 
@@ -184,7 +210,7 @@
       </div>
 
       <div>
-        <label>Progress: {{ rankCount }}/{{ all_units.length }}</label>
+        <label>Progress: {{ rankCount }} / {{ all_units.length }}</label>
       </div>
       <!-- End of unit listing -->
 
@@ -221,7 +247,7 @@
 
     </div>
     <!-- End of side bar -->
-
+    
     <!-- Start of Table -->
     <div id="grid" class="column centered"
       :class="!expanded ? 'twelve wide computer fourteen wide tablet' : 'sixteen wide computer sixteen wide tablet'">
@@ -245,15 +271,25 @@
           <tr v-for="rank in rankings.slice(1, rankings.length).reverse()">
             <td>{{ rank }}</td>
             <td v-for="element in elements" :id="rank + '-' + element" style="padding: 0">
-              <a href="#!" v-on:click="selectUnit(unit.name)" v-for="unit in getRankedUnits(element, rank)">
-                <img :name="unit.name" style="
-                  width: 42px; 
-                  height: 42px; 
-                  margin: 2px;
-                  border-radius: 5px;
-                  border: 1px solid black;" 
-                  :src="'./images/units/' + unit.name + '.png'">
-                </img>
+              <a href="#!" v-on:click="selectUnit(unit.name)" v-for="unit in getRankedUnits(element, rank)" style="position: relative">
+                  <img :name="unit.name" :title="unit.comment" style="
+                    width: 42px; 
+                    height: 42px; 
+                    margin: 2px;
+                    border-radius: 5px;
+                    border: 1px solid black;" 
+                    :src="'./images/units/' + unit.name + '.png'"
+                    v-on:mouseover="showPopup(unit)" 
+                  >
+
+                  <i v-if="unit.comment" class="material-icons" style="
+                    position: absolute;
+                    bottom: -100%;
+                    left: 22%;
+                    transform: scale(0.5);
+                    color: lime;">
+                      info
+                  </i>
               </a>
             </td>
           </tr>
@@ -271,7 +307,7 @@
     unit.rating = 0
   })
   units = units.filter(unit => !unit.name.includes('generic'))
-
+  
   new Vue({
     el: '#app',
     data: {
@@ -287,6 +323,8 @@
       parentTier: "S+",
       tierToDelete: "",
       tierToAdd: "",
+      comment: "",
+      editComment: false,
       importing: false,
       exporting: false,
       expanded: false,
@@ -313,11 +351,25 @@
       },
       rankToText: function () {
         ratings = [{ rankings: this.rankings }];
-        ratings = ratings.concat(this.all_units.map(unit => ({ name: unit.name, rating: unit.rating })));
+        ratings = ratings.concat(this.all_units.map(unit => ({ 
+          name: unit.name, 
+          rating: unit.rating,
+          comment: unit.comment || ""
+        })));
         return JSON.stringify(ratings);
       },
+      placeholder: function() {
+        return this.unit.name + " is ...";
+      }
     },
     methods: {
+      showPopup: function(unit) {
+        $("#unit-panel > div:nth-child(3) > div.ui.one.header").popup({
+          title   : 'Popup Title',
+          content : 'Hello I am a popup'
+        });
+        console.log(unit)
+      },
       resetIndex: function () {
         this.incrementIndex()
         this.decrementIndex()
@@ -352,6 +404,10 @@
         this.incrementIndex();
         this.all_units.find(unit => unit.name === name).rating = rating;
       },
+      addComment: function (name, comment) {
+        this.all_units.find(unit => unit.name === name).comment = comment;
+        this.editComment = !this.editComment;
+      },
       getRankedUnits: function (element, rank) {
         elements = [element]
         return this.all_units.filter(unit => elements.includes(unit.element.toLowerCase()) && unit.rating == this.rankings.indexOf(rank))
@@ -364,7 +420,8 @@
       },
       reset: function () {
         this.all_units.forEach(function (unit) {
-          unit.rating = 0
+          unit.rating = 0;
+          unit.comment = "";
         })
       },
       selectUnit: function (name) {
@@ -386,7 +443,11 @@
             this._resetRanking();
           }
 
-          ratings.forEach(rate => { this.all_units.find(unit => unit.name == rate.name).rating = rate.rating })
+          ratings.forEach(rate => { 
+            let u = this.all_units.find(unit => unit.name == rate.name)
+            u.rating = rate.rating 
+            u.comment = rate.comment;
+          })
         }
         catch (err) { 
           console.log("textToRank went wrong.")
@@ -432,6 +493,11 @@
       },
       _resetRanking: function () {
         this.rankings = this.originalRankings;
+      }
+    },
+    watch: {
+      unit_index: function() {
+        this.comment = this.unit.comment;
       }
     }
   })
