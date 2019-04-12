@@ -110,9 +110,9 @@
             <div class="ui action input" style="width: 100%">
               <input type="text" :placeholder=placeholder v-model="comment">
               <button class="ui button circular icon green" v-on:click="addComment(unit.name, comment)">
-                  <i class="material-icons">save</i>
-                </button>
-              </div>
+                <i class="material-icons">save</i>
+              </button>
+            </div>
           </div>
           <!-- End of add comment -->
         </div>
@@ -173,7 +173,7 @@
         </div>
       </div>
 
-      <!-- unit List -->
+      <!-- Unit List -->
       <div style="height: 300px;" v-show="!importing && !exporting">
         <div class="ui selection list" style="height: 100%; overflow-y: scroll;">
           <div :name="unit.name" class="item" v-for="unit in unit_list" v-on:click.stop="selectUnit(unit.name)">
@@ -268,7 +268,7 @@
             <td>{{ rank }}</td>
             <td v-for="element in elements" :id="rank + '-' + element" style="padding: 0">
               <a v-for="unit in getRankedUnits(element, rank)" v-on:click="selectUnit(unit.name)" href="#!" style="position: relative">
-                  <img :name="unit.name" :title="unit.comment" style="
+                  <img :name="unit.name" style="
                     width: 42px; 
                     height: 42px; 
                     margin: 2px;
@@ -394,9 +394,9 @@
         this.all_units.find(unit => unit.name === name).rating = rating;
       },
       addComment: function (name, comment) {
-        this.all_units.find(unit => unit.name === name).comment = comment;
         this.editComment = !this.editComment;
-
+        this.all_units.find(unit => unit.name === name).comment = comment;
+        
         $(`img[name='${name}']`).popup({
             title   : name,
             content : comment
@@ -493,6 +493,17 @@
       unit_index: function() {
         this.comment = this.unit.comment;
       }
+    },
+    updated() {
+      this.all_units
+        .filter(unit => unit.rating !== 0)
+        .filter(unit => unit.comment !== "")
+        .forEach(unit => {
+          $(`img[name='${unit.name}']`).popup({
+            title   : unit.name,
+            content : unit.comment
+          });
+        })
     }
   })
 </script>
