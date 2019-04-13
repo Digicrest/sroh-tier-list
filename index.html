@@ -519,7 +519,7 @@
         .filter(unit => unit.rating !== 0)
         .filter(unit => unit.comment !== "")
         .forEach(unit => {
-          $(`img[name='${unit.name}']`).popup({
+          $(`img[name='${unit.name}']`).parent().popup({
             title   : unit.name,
             content : unit.comment
           });
