@@ -281,23 +281,21 @@
             <td>{{ rank }}</td>
             <td v-for="element in elements" :id="rank + '-' + element" style="padding: 0">
               <a v-for="unit in getRankedUnits(element, rank)" v-on:click="selectUnit(unit.name)" href="#!" style="position: relative">
-                  <img :name="unit.name" style="
-                    width: 42px; 
-                    height: 42px; 
-                    margin: 2px;
-                    border-radius: 5px;
-                    border: 1px solid black;" 
-                    :src="'./images/units/' + unit.name + '.png'"  
-                  >
 
-                  <i v-if="unit.comment" class="material-icons" style="
-                    position: absolute;
-                    top: -9px;
-                    left: 22px;
-                    transform: scale(0.7);
-                    color: mediumspringgreen;">
-                      info
+                <div style="display: inline-flex; flex-direction: row; flex-wrap: wrap;">
+                  <!-- border -->
+                  <img :src="'./images/borders/' + unit.unlock_stars + '.png'" style="
+                    position: absolute; width: 46px;">
+                  
+                  <!-- unit -->
+                  <img :name="unit.name" :src="'./images/units/' + unit.name + '.png'" style="width: 43px; height: 43px; margin: 2px;">
+                  
+                  <!-- comment icon -->
+                  <i v-if="unit.comment" class="material-icons" style="position: absolute; top: -9px; left: 22px; transform: scale(0.7);color: mediumspringgreen;">
+                    info
                   </i>
+                </div>
+ 
               </a>
             </td>
           </tr>
