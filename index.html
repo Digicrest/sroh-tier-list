@@ -201,12 +201,12 @@
       <div style="height: 300px;" v-show="exporting">
         <div class="ui form">
           <div ui action input class="field" style="text-align: center">
-            <label v-if="!link.length">Copy text from here</label>
+            <label v-if="!exportAsLink">Copy text from here</label>
             <label v-else style="color: red; font-style: italic">might want to use a URL shortener...</label>
 
-            <textarea id="exportText" readonly rows="11">{{ rankToText }}</textarea>
-            <button v-if="!link.length" v-on:click="createShareableLink()" class="ui inverted blue button" style="margin-top: 10px;">As Link</button>
-            <button v-else v-on:click="setExportToJSON()" class="ui inverted blue button" style="margin-top: 10px;">As JSON</button>
+            <textarea id="exportText" readonly rows="11" :value="exportAsLink ? rankToLink : rankToText"></textarea>
+            <button v-if="!exportAsLink" v-on:click="exportAsLink = !exportAsLink" class="ui inverted blue button" style="margin-top: 10px;">As Link</button>
+            <button v-else v-on:click="exportAsLink = !exportAsLink" class="ui inverted blue button" style="margin-top: 10px;">As JSON</button>
             
             <button onclick="copytoClipboard()" class="ui teal right labeled icon button">
                 <i class="copy icon"></i>Copy
@@ -345,11 +345,11 @@
       parentTier: "S+",
       tierToDelete: "",
       tierToAdd: "",
-      link: "", // shareable link
       comment: "",
       editComment: false,
       importing: false,
       exporting: false,
+      exportAsLink: false,
       expanded: false,
       evenwidth: false,
       editTiers: false,
@@ -380,6 +380,10 @@
           comment: unit.comment || ""
         })));
         return JSON.stringify(ratings);
+      },
+      rankToLink: function() {
+        let url = "https://digicrest.github.io/sroh-tier-list/?list=";
+        return url + btoa(this.rankToText);
       },
       placeholder: function() {
         return this.unit.name + " is ...";
@@ -477,20 +481,10 @@
           console.log("textToRank went wrong.")
         }
       },
-      setExportToJSON: function() {
-        $('#exportText')[0].textContent = atob(this.link.substring(49));
-        this.link = "";
-      },
       useChompyTierList() {
         let text = JSON.stringify(chompy_tier_list);
         $("#importText")[0].textContent = text;
         this.textToRank(text)
-      },
-      createShareableLink() {
-        let b64Export = btoa($("#exportText")[0].textContent);        
-        let w = window.location;
-        this.link = w.host + w.pathname + ("?list=" + b64Export);
-        $("#exportText")[0].textContent = this.link;
       },
       addTier: function (tierToAdd, parentTier) {
         if (this.rankings.indexOf(tierToAdd) !== -1) return;
