@@ -200,9 +200,17 @@
       <!-- Export Field -->
       <div style="height: 300px;" v-show="exporting">
         <div class="ui form">
-          <div class="field" style="text-align: center">
-            <label>Copy text from here</label>
-            <textarea readonly rows="11"> {{ rankToText }}</textarea>
+          <div ui action input class="field" style="text-align: center">
+            <label v-if="!link.length">Copy text from here</label>
+            <label v-else style="color: red; font-style: italic">might want to use a URL shortener...</label>
+
+            <textarea id="exportText" readonly rows="11">{{ rankToText }}</textarea>
+            <button v-if="!link.length" v-on:click="createShareableLink()" class="ui inverted blue button" style="margin-top: 10px;">As Link</button>
+            <button v-else v-on:click="setExportToJSON()" class="ui inverted blue button" style="margin-top: 10px;">As JSON</button>
+            
+            <button onclick="copytoClipboard()" class="ui teal right labeled icon button">
+                <i class="copy icon"></i>Copy
+              </button>
           </div>
         </div>
       </div>
@@ -227,33 +235,34 @@
 
       <!-- Start of action buttons -->
       <div class="ui four buttons">
-        <button class="ui button" v-on:click="randomize()">
-          <i class="icon random"></i>
-          Randomize
+        <button class="ui button icon orange" v-on:click="randomize()">
+            <i class="material-icons">polymer</i>
+            Random
         </button>
-        <button class="ui button" v-on:click="reset()">
-          <i class="icon erase"></i>
-          Reset
+        <button class="ui button icon red" v-on:click="reset()">
+            <i class="material-icons">delete_forever</i>
+            Reset
         </button>
-        <button class="ui button" v-if="!importing" v-on:click="importing = !importing; exporting = false">
-          <i class="icon paste"></i>
-          Import
+        
+        <button class="ui button icon green"  v-if="!importing" v-on:click="importing = !importing; exporting = false">
+            <i class="material-icons">sync</i>
+            Import
         </button>
-        <button class="ui button" v-else v-on:click="importing = false; exporting = false">
-          <i class="icon list"></i>
-          List
+        <button class="ui button icon green" v-else v-on:click="importing = false; exporting = false">
+            <i class="material-icons">view_list</i>
         </button>
-        <button class="ui button" v-if="!exporting" v-on:click="exporting = !exporting; importing = false">
-          <i class="icon copy"></i>
-          Export
+
+
+        <button class="ui button icon blue" v-if="!exporting" v-on:click="exporting = !exporting; importing = false">
+            <i class="material-icons">share</i>
+            Share
         </button>
-        <button class="ui button" v-else v-on:click="importing = false; exporting = false">
-          <i class="icon list"></i>
-          List
+        <button class="ui button icon blue" v-else v-on:click="importing = false; exporting = false">
+            <i class="material-icons">view_list</i>
         </button>
       </div>
+      
       <!-- End of action buttons -->
-
     </div>
     <!-- End of side bar -->
     
@@ -295,7 +304,6 @@
                     info
                   </i>
                 </div>
- 
               </a>
             </td>
           </tr>
@@ -310,6 +318,12 @@
 <script src="./data/chompy-tier-list.js"></script>
 
 <script>
+  function copytoClipboard() {
+    let copyText = document.getElementById("exportText"); 
+    copyText.select(); 
+    document.execCommand("copy");
+  }
+
   units.forEach(function (unit) {
     unit.rating = 0;
     unit.comment = "";
@@ -331,6 +345,7 @@
       parentTier: "S+",
       tierToDelete: "",
       tierToAdd: "",
+      link: "", // shareable link
       comment: "",
       editComment: false,
       importing: false,
@@ -462,10 +477,20 @@
           console.log("textToRank went wrong.")
         }
       },
-      useChompyTierList(){
+      setExportToJSON: function() {
+        $('#exportText')[0].textContent = this.rankToText;
+        this.link = "";
+      },
+      useChompyTierList() {
         let text = JSON.stringify(chompy_tier_list);
         $("#importText")[0].textContent = text;
         this.textToRank(text)
+      },
+      createShareableLink() {
+        let b64Export = btoa($("#exportText")[0].textContent);        
+        let w = window.location;
+        this.link = w.host + w.pathname + ("?list=" + b64Export);
+        $("#exportText")[0].textContent = this.link;
       },
       addTier: function (tierToAdd, parentTier) {
         if (this.rankings.indexOf(tierToAdd) !== -1) return;
@@ -524,6 +549,17 @@
             content : unit.comment
           });
         })
+    },
+    created() {
+      // if the link contains json info in base64, convert it back and import
+      if (window.location.search) {
+        let argument = window.location.search;
+        if (argument.indexOf("?list=") !== -1) {
+          let text = atob(argument.split("?list=")[1]);
+          $("#importText")[0].textContent = text;
+          this.textToRank(text)
+        }
+      }
     }
   })
 </script>
