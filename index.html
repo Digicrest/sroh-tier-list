@@ -280,7 +280,7 @@
           <tr v-for="rank in rankings.slice(1, rankings.length).reverse()">
             <td>{{ rank }}</td>
             <td v-for="element in elements" :id="rank + '-' + element" style="padding: 0">
-              <a v-for="unit in getRankedUnits(element, rank)" v-on:click="selectUnit(unit.name)" href="#!" style="position: relative">
+              <a v-for="unit in getRankedUnits(element, rank)" v-on:click="selectUnit(unit.name)" href="#!" style="position: relative; margin: 3px;">
 
                 <div style="display: inline-flex; flex-direction: row; flex-wrap: wrap;">
                   <!-- border -->
