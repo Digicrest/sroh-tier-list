@@ -478,7 +478,7 @@
         }
       },
       setExportToJSON: function() {
-        $('#exportText')[0].textContent = this.rankToText;
+        $('#exportText')[0].textContent = atob(this.link.substring(49));
         this.link = "";
       },
       useChompyTierList() {
